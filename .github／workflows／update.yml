@@ -1,14 +1,9 @@
-# このファイルは、リポジトリ内では
-#   .github/workflows/update.yml
-# というパスに置いてください(GitHub上でこの名前・場所である必要があります)。
-
 name: Update AI Home Digest
 
 on:
   schedule:
-    # UTC 0:00 = 日本時間 9:00。3日ごとに実行(日付の3の倍数の日)
     - cron: "0 0 */3 * *"
-  workflow_dispatch: {}   # 手動実行ボタンも使えるようにする
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -37,5 +32,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add docs/index.html
-          git commit -m "Update digest $(date +'%Y-%m-%d')" || echo "No changes"
+          git commit -m "Update digest" || echo "No changes"
           git push
