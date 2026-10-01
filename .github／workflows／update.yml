@@ -1,1 +1,41 @@
+# このファイルは、リポジトリ内では
+#   .github/workflows/update.yml
+# というパスに置いてください(GitHub上でこの名前・場所である必要があります)。
 
+name: Update AI Home Digest
+
+on:
+  schedule:
+    # UTC 0:00 = 日本時間 9:00。3日ごとに実行(日付の3の倍数の日)
+    - cron: "0 0 */3 * *"
+  workflow_dispatch: {}   # 手動実行ボタンも使えるようにする
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Generate digest
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }}
+        run: python automation/generate_report.py
+
+      - name: Commit updated page
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add docs/index.html
+          git commit -m "Update digest $(date +'%Y-%m-%d')" || echo "No changes"
+          git push
